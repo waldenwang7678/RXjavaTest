@@ -41,7 +41,17 @@ public class MainActivity extends AppCompatActivity implements TextViewPresenter
 
     @OnClick(R.id.map)
     void map() {
+        RXUtil.map(this);
+    }
 
+    @OnClick(R.id.concat)
+    void concat() {
+        RXUtil.concat(this);
+    }
+
+    @OnClick(R.id.flatmap)
+    void flatmap() {
+        RXUtil.flatmap(this);
     }
 
 }

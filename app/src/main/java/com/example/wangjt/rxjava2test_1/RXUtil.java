@@ -1,16 +1,19 @@
 package com.example.wangjt.rxjava2test_1;
 
+import android.os.SystemClock;
 import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
@@ -124,7 +127,12 @@ public class RXUtil {
         }
     }
 
-    public static void map(TextViewPresenter presenter) {
+    /**
+     * observer 类型转化
+     *
+     * @param presenter
+     */
+    public static void map(final TextViewPresenter presenter) {
 
         Observable.create(
                 new ObservableOnSubscribe<JSONObject>() {
@@ -147,9 +155,7 @@ public class RXUtil {
                 .map(new Function<JSONObject, String>() {
                     @Override
                     public String apply(@NonNull JSONObject jsonObject) throws Exception {
-                        jsonObject.optString("",)
-
-                        return null;
+                        return jsonObject.optString("head", "图片地址解析错误");
                     }
                 })
                 .subscribeOn(Schedulers.io())
@@ -157,12 +163,87 @@ public class RXUtil {
                 .subscribe(new Consumer<String>() {
                     @Override
                     public void accept(@NonNull String s) throws Exception {
+                        presenter.showInfo(s);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        presenter.showInfo(throwable.getMessage());
+                    }
+                });
+    }
 
+    /**
+     * 处理多个 Observable 发射事件 ,只有前一个处理完毕后后面的才可以执行
+     * 适合在网络请求 (先寻找本地缓存数据,如果没有则再请求网络数据)
+     * 有执行的先后顺序 , 只有前面的 onComplete 执行后 , 后面的 Obsrvable 才能执行
+     *
+     * @param presenter
+     */
+    public static void concat(final TextViewPresenter presenter) {
+        Observable<String> ob1 = Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(final @NonNull ObservableEmitter<String> e) throws Exception {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        e.onNext("I emission immediately !"); //
+                        //e.onComplete();    //如果不执行, 后面的 observable 不会执行
+                    }
+                }).start();
+
+            }
+        });
+        Observable<String> ob2 = Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(final @NonNull ObservableEmitter<String> e) throws Exception {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        SystemClock.sleep(2000);
+                        e.onNext("I sleep 2 second and then immediately!");
+                    }
+                }).start();
+            }
+        });
+
+        Observable.concat(ob1, ob2)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(@NonNull String s) throws Exception {
+                        presenter.showInfo(s);
+                    }
+                });
+    }
+
+    public static void flatmap(final TextViewPresenter presenter) {
+        ArrayList<String> list = new ArrayList();
+        Observable.just("asd", "def")
+                .flatMap(new Function<String, ObservableSource<?>>() {
+                    @Override
+                    public ObservableSource<?> apply(@NonNull String str) throws Exception {
+                        return createObservable(str);
                     }
                 })
-        ;
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Object>() {
+                    @Override
+                    public void accept(@NonNull Object o) throws Exception {
+                        presenter.showInfo(o.toString());
+                    }
+                });
+    }
 
-
+    private static Observable<String> createObservable(final String str) {
+        return Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(@NonNull ObservableEmitter<String> e) throws Exception {
+                e.onNext(str);
+            }
+        });
     }
 
 }

@@ -150,7 +150,7 @@ public class HttpUtil {
                     if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                         final InputStream is = connection.getInputStream();
                         //apk 文件放置内部存储
-                        //final File file = new File(activity.getApplication().getCacheDir() ,"/app.apk");
+                        //final File file = new File(activity.getApplicatio˙n().getCacheDir() ,"/app.apk");
                         //文件放置外部存储
                         final File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "/app.apk");
                         if (!file.exists()) {

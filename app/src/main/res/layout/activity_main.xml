@@ -41,4 +41,17 @@
         style="@style/btStyle"
         android:text="map"
         app:layout_constraintTop_toBottomOf="@+id/interval" />
+
+    <Button
+        android:id="@+id/concat"
+        style="@style/btStyle"
+        android:layout_height="wrap_content"
+        android:text="concat"
+        app:layout_constraintTop_toBottomOf="@+id/map" />
+
+    <Button
+        android:id="@+id/flatmap"
+        style="@style/btStyle"
+        android:text="flatmap"
+        app:layout_constraintTop_toBottomOf="@+id/concat" />
 </android.support.constraint.ConstraintLayout>
