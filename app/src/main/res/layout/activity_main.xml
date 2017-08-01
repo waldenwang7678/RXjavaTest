@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.wangjt.rxjava2test_1.MainActivity">
+
+    <TextView
+        android:id="@+id/info"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#ecffe0"
+        android:gravity="center_vertical"
+        android:paddingLeft="10dp" />
+
+    <Button
+        android:id="@+id/observable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="observal"
+        android:textAllCaps="false"
+        app:layout_constraintTop_toBottomOf="@id/info" />
+
+    <Button
+        android:id="@+id/interval"
+        style="@style/btStyle"
+        android:text="interval"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/observable" />
+
+    <Button
+        android:id="@+id/interval_cancle"
+        style="@style/btStyle"
+        android:text="interval_cancle"
+        app:layout_constraintLeft_toRightOf="@+id/interval"
+        app:layout_constraintTop_toTopOf="@+id/interval" />
+
+    <Button
+        android:id="@+id/map"
+        style="@style/btStyle"
+        android:text="map"
+        app:layout_constraintTop_toBottomOf="@+id/interval" />
+</android.support.constraint.ConstraintLayout>
