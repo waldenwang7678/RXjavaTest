@@ -54,4 +54,9 @@ public class MainActivity extends AppCompatActivity implements TextViewPresenter
         RXUtil.flatmap(this);
     }
 
+    @OnClick(R.id.zip)
+    void zip() {
+        RXUtil.zip(this);
+    }
+
 }

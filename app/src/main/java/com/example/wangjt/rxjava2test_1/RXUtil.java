@@ -18,12 +18,12 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 /**
- * Created by wangjt on 2017/8/1.
  * rxjava demo
  * intention of scheduler change:
  * subscribeOn - only the setting of first time  is userful
@@ -220,11 +220,71 @@ public class RXUtil {
 
     public static void flatmap(final TextViewPresenter presenter) {
         ArrayList<String> list = new ArrayList();
-        Observable.just("asd", "def")
-                .flatMap(new Function<String, ObservableSource<?>>() {
+        final StringBuilder builder = new StringBuilder();
+        Observable.just("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
+                .concatMap(new Function<String, ObservableSource<?>>() {
                     @Override
                     public ObservableSource<?> apply(@NonNull String str) throws Exception {
                         return createObservable(str);
+                    }
+                })
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Object>() {
+                    @Override
+                    public void accept(@NonNull Object o) throws Exception {
+                        builder.append(o.toString());
+                        presenter.showInfo(builder.toString());
+                        Log.d("asdasd", "accept: " + o.toString());
+                    }
+                });
+    }
+
+    private static Observable<String> createObservable(final String str) {
+        return Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(@NonNull ObservableEmitter<String> e) throws Exception {
+                e.onNext(str);
+                e.onComplete();
+            }
+        });
+    }
+
+
+    public static void zip(final TextViewPresenter presenter) {
+        Observable<Integer> observable1 = Observable.create(new ObservableOnSubscribe<Integer>() {
+            @Override
+            public void subscribe(final @NonNull ObservableEmitter<Integer> e) throws Exception {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        e.onNext(1);
+                    }
+                }).start();
+
+            }
+        });
+
+        Observable<Integer> observable2 = Observable.create(new ObservableOnSubscribe<Integer>() {
+            @Override
+            public void subscribe(final @NonNull ObservableEmitter<Integer> e) throws Exception {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        SystemClock.sleep(2000);
+                        e.onNext(2);
+                    }
+                }).start();
+
+            }
+        });
+
+        Observable.zip(observable1, observable2,
+                new BiFunction<Integer, Integer, String>() {
+                    @Override
+                    public String apply(@NonNull Integer s, @NonNull Integer s2) throws Exception {
+
+                        return "success" + s + "-" + s2;
                     }
                 })
                 .subscribeOn(Schedulers.newThread())
@@ -236,14 +296,4 @@ public class RXUtil {
                     }
                 });
     }
-
-    private static Observable<String> createObservable(final String str) {
-        return Observable.create(new ObservableOnSubscribe<String>() {
-            @Override
-            public void subscribe(@NonNull ObservableEmitter<String> e) throws Exception {
-                e.onNext(str);
-            }
-        });
-    }
-
 }
